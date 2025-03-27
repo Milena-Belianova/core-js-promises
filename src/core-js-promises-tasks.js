@@ -38,8 +38,11 @@ function getPromise(number) {
  * Promise.resolve('success') => promise that will be fulfilled with 'success' value
  * Promise.reject('fail')     => promise that will be fulfilled with 'fail' value
  */
-function getPromiseResult(/* source */) {
-  throw new Error('Not implemented');
+function getPromiseResult(source) {
+  return source.then(
+    () => 'success',
+    () => 'fail'
+  );
 }
 
 /**
@@ -138,8 +141,32 @@ function getAllResult(promises) {
  * [promise1, promise4, promise3] => Promise.resolved('104030')
  * [promise1, promise4, promise3, promise2] => Promise.resolved('10403020')
  */
-function queuePromises(/* promises */) {
-  throw new Error('Not implemented');
+function queuePromises(promises) {
+  return new Promise((resolve) => {
+    let result = '';
+    let index = 0;
+
+    const processNextPromise = () => {
+      if (index >= promises.length) {
+        resolve(result);
+        return;
+      }
+
+      const currentPromise = promises[index];
+      index += 1;
+
+      currentPromise
+        .then((value) => {
+          result += value;
+          processNextPromise();
+        })
+        .catch(() => {
+          processNextPromise();
+        });
+    };
+
+    processNextPromise();
+  });
 }
 
 module.exports = {
